@@ -1,37 +1,42 @@
-import { Baby, Minus, Plus, UsersRound, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Baby, Minus, Plus, UsersRound, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface PassengerPickerProps {
   adults: number;
   childrenAges: number[];
-  context?: "transport" | "hotel";
+  context?: 'transport' | 'hotel';
   onAdultsChange: (value: number) => void;
   onChildrenAgesChange: (value: number[]) => void;
 }
 
-function passengerWord(count: number, context: "transport" | "hotel") {
-  if (context === "hotel") {
-    if (count === 1) return "1 гость";
+function passengerWord(count: number, context: 'transport' | 'hotel') {
+  if (context === 'hotel') {
+    if (count === 1) return '1 гость';
     if (count >= 2 && count <= 4) return `${count} гостя`;
     return `${count} гостей`;
   }
-  if (count === 1) return "1 пассажир";
+  if (count === 1) return '1 пассажир';
   if (count >= 2 && count <= 4) return `${count} пассажира`;
   return `${count} пассажиров`;
 }
 
 function childAgeLabel(age: number) {
-  if (age === 0) return "Младше года";
+  if (age === 0) return 'Младше года';
   const last = age % 10;
   const lastTwo = age % 100;
-  const word = last === 1 && lastTwo !== 11 ? "год" : last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14) ? "года" : "лет";
+  const word =
+    last === 1 && lastTwo !== 11
+      ? 'год'
+      : last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)
+        ? 'года'
+        : 'лет';
   return `${age} ${word}`;
 }
 
 export function PassengerPicker({
   adults,
   childrenAges,
-  context = "transport",
+  context = 'transport',
   onAdultsChange,
   onChildrenAgesChange,
 }: PassengerPickerProps) {
@@ -45,19 +50,22 @@ export function PassengerPicker({
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
     };
     const closeEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === 'Escape') setOpen(false);
     };
-    document.addEventListener("pointerdown", closeOutside);
-    document.addEventListener("keydown", closeEscape);
+    document.addEventListener('pointerdown', closeOutside);
+    document.addEventListener('keydown', closeEscape);
     return () => {
-      document.removeEventListener("pointerdown", closeOutside);
-      document.removeEventListener("keydown", closeEscape);
+      document.removeEventListener('pointerdown', closeOutside);
+      document.removeEventListener('keydown', closeEscape);
     };
   }, [open]);
 
   return (
-    <div className={`search-field search-field--people picker-field passenger-picker ${open ? "is-open" : ""}`} ref={rootRef}>
-      <span>{context === "hotel" ? "Гости" : "Кто едет"}</span>
+    <div
+      className={`search-field search-field--people picker-field passenger-picker ${open ? 'is-open' : ''}`}
+      ref={rootRef}
+    >
+      <span>{context === 'hotel' ? 'Гости' : 'Кто едет'}</span>
       <button
         className="picker-field__trigger"
         type="button"
@@ -70,18 +78,32 @@ export function PassengerPicker({
       </button>
 
       {open && (
-        <div className="passenger-popover" role="dialog" aria-label={context === "hotel" ? "Количество гостей" : "Количество пассажиров"}>
+        <div
+          className="passenger-popover"
+          role="dialog"
+          aria-label={context === 'hotel' ? 'Количество гостей' : 'Количество пассажиров'}
+        >
           <div className="passenger-row">
             <div>
               <strong>Взрослые</strong>
               <small>От 12 лет</small>
             </div>
             <div className="passenger-counter">
-              <button type="button" aria-label="Убрать взрослого" disabled={adults <= 1} onClick={() => onAdultsChange(adults - 1)}>
+              <button
+                type="button"
+                aria-label="Убрать взрослого"
+                disabled={adults <= 1}
+                onClick={() => onAdultsChange(adults - 1)}
+              >
                 <Minus size={18} />
               </button>
               <strong>{adults}</strong>
-              <button type="button" aria-label="Добавить взрослого" disabled={adults >= 6 || total >= 8} onClick={() => onAdultsChange(adults + 1)}>
+              <button
+                type="button"
+                aria-label="Добавить взрослого"
+                disabled={adults >= 6 || total >= 8}
+                onClick={() => onAdultsChange(adults + 1)}
+              >
                 <Plus size={18} />
               </button>
             </div>
@@ -91,7 +113,9 @@ export function PassengerPicker({
             <div className="passenger-children">
               {childrenAges.map((age, index) => (
                 <div className="passenger-child" key={index}>
-                  <span><Baby size={18} /></span>
+                  <span>
+                    <Baby size={18} />
+                  </span>
                   <label>
                     <strong>Ребёнок {index + 1}</strong>
                     <select
@@ -104,14 +128,20 @@ export function PassengerPicker({
                       }}
                     >
                       {Array.from({ length: 18 }, (_, childAge) => (
-                        <option value={childAge} key={childAge}>{childAgeLabel(childAge)}</option>
+                        <option value={childAge} key={childAge}>
+                          {childAgeLabel(childAge)}
+                        </option>
                       ))}
                     </select>
                   </label>
                   <button
                     type="button"
                     aria-label={`Удалить ребёнка ${index + 1}`}
-                    onClick={() => onChildrenAgesChange(childrenAges.filter((_, childIndex) => childIndex !== index))}
+                    onClick={() =>
+                      onChildrenAgesChange(
+                        childrenAges.filter((_, childIndex) => childIndex !== index),
+                      )
+                    }
                   >
                     <X size={17} />
                   </button>
@@ -128,7 +158,9 @@ export function PassengerPicker({
           >
             <Baby size={18} /> Добавить ребёнка
           </button>
-          <button className="passenger-ready" type="button" onClick={() => setOpen(false)}>Готово</button>
+          <button className="passenger-ready" type="button" onClick={() => setOpen(false)}>
+            Готово
+          </button>
         </div>
       )}
     </div>

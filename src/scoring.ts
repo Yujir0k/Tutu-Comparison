@@ -1,4 +1,11 @@
-import type { Offer, OfferAnalysis, Priority, Recommendation, ReviewSummary, TransportMode } from './types';
+import type {
+  Offer,
+  OfferAnalysis,
+  Priority,
+  Recommendation,
+  ReviewSummary,
+  TransportMode,
+} from './types.js';
 
 export const TRANSPORT_SCORING_VERSION = '2.0.0';
 
@@ -51,7 +58,8 @@ const modeFriction: Record<TransportMode, number> = {
 
 const clamp = (value: number, min = 0, max = 100) => Math.max(min, Math.min(max, value));
 
-const finitePositive = (value: unknown): value is number => Number.isFinite(value) && Number(value) > 0;
+const finitePositive = (value: unknown): value is number =>
+  Number.isFinite(value) && Number(value) > 0;
 
 function average(values: number[]) {
   return values.reduce((sum, value) => sum + value, 0) / Math.max(1, values.length);
@@ -59,7 +67,7 @@ function average(values: number[]) {
 
 function rankPercentile(value: number, values: number[], lowerIsBetter: boolean) {
   if (values.length <= 1 || values.every((item) => item === values[0])) return 100;
-  const ordered = [...values].sort((left, right) => lowerIsBetter ? left - right : right - left);
+  const ordered = [...values].sort((left, right) => (lowerIsBetter ? left - right : right - left));
   const positions = ordered
     .map((item, index) => ({ item, index }))
     .filter((entry) => entry.item === value)
@@ -72,7 +80,12 @@ function rankPercentile(value: number, values: number[], lowerIsBetter: boolean)
  * Совмещает относительный проигрыш лучшему варианту и устойчивое ранговое место.
  * Это не даёт одному выбросу искусственно «сплющить» всю остальную выдачу.
  */
-function relativeUtility(value: number, values: number[], lowerIsBetter: boolean, sensitivity: number) {
+function relativeUtility(
+  value: number,
+  values: number[],
+  lowerIsBetter: boolean,
+  sensitivity: number,
+) {
   if (values.length <= 1 || values.every((item) => item === values[0])) return 100;
   const best = lowerIsBetter ? Math.min(...values) : Math.max(...values);
   const ratio = lowerIsBetter
@@ -96,9 +109,10 @@ function reliabilityScore(summary: ReviewSummary | undefined) {
   const effectiveCount = reviewCount > 0 ? reviewCount : 3;
   const priorRating = 8.2;
   const priorWeight = 30;
-  const bayesianRating = (rating * effectiveCount + priorRating * priorWeight) / (effectiveCount + priorWeight);
+  const bayesianRating =
+    (rating * effectiveCount + priorRating * priorWeight) / (effectiveCount + priorWeight);
   const quality = clamp((bayesianRating - 5) * 20);
-  const evidence = clamp(Math.log10(reviewCount + 1) / 3.3 * 100);
+  const evidence = clamp((Math.log10(reviewCount + 1) / 3.3) * 100);
   return clamp(quality * 0.82 + evidence * 0.18);
 }
 
@@ -159,27 +173,51 @@ function flexibilityScore(offer: ScoringInput) {
   const changeable: boolean[] = [];
 
   for (const variant of offer.variants || []) {
-    if (typeof variant.conditions?.refundable === 'boolean') refundable.push(variant.conditions.refundable);
-    if (typeof variant.conditions?.changeable === 'boolean') changeable.push(variant.conditions.changeable);
+    if (typeof variant.conditions?.refundable === 'boolean')
+      refundable.push(variant.conditions.refundable);
+    if (typeof variant.conditions?.changeable === 'boolean')
+      changeable.push(variant.conditions.changeable);
   }
 
   const fareCount = Math.max(0, Number(offer.fares?.count || 0));
-  const knownRefundableFares = Math.max(0, fareCount - Number(offer.fares?.refundable_unknown || 0));
-  const knownChangeableFares = Math.max(0, fareCount - Number(offer.fares?.changeable_unknown || 0));
-  if (!refundable.length && knownRefundableFares > 0 && Number.isFinite(offer.fares?.refundable_count)) {
+  const knownRefundableFares = Math.max(
+    0,
+    fareCount - Number(offer.fares?.refundable_unknown || 0),
+  );
+  const knownChangeableFares = Math.max(
+    0,
+    fareCount - Number(offer.fares?.changeable_unknown || 0),
+  );
+  if (
+    !refundable.length &&
+    knownRefundableFares > 0 &&
+    Number.isFinite(offer.fares?.refundable_count)
+  ) {
     refundable.push(...Array(Math.min(knownRefundableFares, 100)).fill(false));
     const knownRefundable = Math.min(Number(offer.fares?.refundable_count || 0), refundable.length);
     for (let index = 0; index < knownRefundable; index += 1) refundable[index] = true;
   }
-  if (!changeable.length && knownChangeableFares > 0 && Number.isFinite(offer.fares?.changeable_count)) {
+  if (
+    !changeable.length &&
+    knownChangeableFares > 0 &&
+    Number.isFinite(offer.fares?.changeable_count)
+  ) {
     changeable.push(...Array(Math.min(knownChangeableFares, 100)).fill(false));
     const knownChangeable = Math.min(Number(offer.fares?.changeable_count || 0), changeable.length);
     for (let index = 0; index < knownChangeable; index += 1) changeable[index] = true;
   }
 
   const parts: Array<{ value: number; weight: number }> = [];
-  if (refundable.length) parts.push({ value: refundable.filter(Boolean).length / refundable.length * 100, weight: 0.65 });
-  if (changeable.length) parts.push({ value: changeable.filter(Boolean).length / changeable.length * 100, weight: 0.35 });
+  if (refundable.length)
+    parts.push({
+      value: (refundable.filter(Boolean).length / refundable.length) * 100,
+      weight: 0.65,
+    });
+  if (changeable.length)
+    parts.push({
+      value: (changeable.filter(Boolean).length / changeable.length) * 100,
+      weight: 0.35,
+    });
   if (!parts.length) return undefined;
   const weight = parts.reduce((sum, part) => sum + part.weight, 0);
   return parts.reduce((sum, part) => sum + part.value * part.weight, 0) / weight;
@@ -199,17 +237,16 @@ function dataConfidence(offer: ScoringInput) {
   return checks.reduce((score, [known, weight]) => score + (known ? weight : 0), 0);
 }
 
-function weightedScore(
-  components: Record<ScoreComponent, number | undefined>,
-  priority: Priority,
-) {
+function weightedScore(components: Record<ScoreComponent, number | undefined>, priority: Priority) {
   const weights = priorityWeights[priority];
-  const available = (Object.keys(weights) as ScoreComponent[])
-    .filter((key) => Number.isFinite(components[key]));
+  const available = (Object.keys(weights) as ScoreComponent[]).filter((key) =>
+    Number.isFinite(components[key]),
+  );
   const totalWeight = available.reduce((sum, key) => sum + weights[key], 0);
   if (!totalWeight) return { score: 0, coverage: 0 };
   return {
-    score: available.reduce((sum, key) => sum + Number(components[key]) * weights[key], 0) / totalWeight,
+    score:
+      available.reduce((sum, key) => sum + Number(components[key]) * weights[key], 0) / totalWeight,
     coverage: totalWeight,
   };
 }
@@ -234,9 +271,13 @@ function buildReasons(
     quality: [],
     flexibility: [],
   };
-  if (comparableMinimum(offer.price.amount, context.minPrice)) facts.price.push('одна из самых низких цен');
-  if (comparableMinimum(offer.duration_min, context.minDuration)) facts.time.push('одно из минимальных времён в пути');
-  facts.calm.push(changes === 0 ? 'без пересадок' : `${changes} ${changes === 1 ? 'пересадка' : 'пересадки'}`);
+  if (comparableMinimum(offer.price.amount, context.minPrice))
+    facts.price.push('одна из самых низких цен');
+  if (comparableMinimum(offer.duration_min, context.minDuration))
+    facts.time.push('одно из минимальных времён в пути');
+  facts.calm.push(
+    changes === 0 ? 'без пересадок' : `${changes} ${changes === 1 ? 'пересадка' : 'пересадки'}`,
+  );
   if (!overnight) facts.calm.push('удобное время отправления и прибытия');
   else facts.calm.push('затрагивает поздние или ранние часы');
   const rating = normalizedRating(offer.review_summary);
@@ -273,7 +314,8 @@ export function scoreOffers<T extends ScoringInput>(
 
   return rawOffers.map((offer) => {
     const changes = routeChanges(offer);
-    const overnight = isUncomfortableHour(offer.departure_at) || isUncomfortableHour(offer.arrival_at);
+    const overnight =
+      isUncomfortableHour(offer.departure_at) || isUncomfortableHour(offer.arrival_at);
     const priceScore = finitePositive(offer.price?.amount)
       ? relativeUtility(offer.price.amount, prices, true, 1.15)
       : undefined;
@@ -282,39 +324,47 @@ export function scoreOffers<T extends ScoringInput>(
       : undefined;
     const reliability = reliabilityScore(offer.review_summary);
     const flexibility = flexibilityScore(offer);
-    const stressScore = Math.round(clamp(
-      7
-        + modeFriction[offer.transport]
-        + transferPenalty(changes)
-        + connectionPenalty(offer)
-        + endpointTimePenalty(offer.departure_at, false)
-        + endpointTimePenalty(offer.arrival_at, true)
-        + (timeScore === undefined ? 0 : (100 - timeScore) * 0.14)
-        + (offer.is_multi_pnr ? 19 : 0)
-        - (reliability === undefined ? 0 : Math.max(0, reliability - 65) * 0.06),
-      3,
-      98,
-    ));
+    const stressScore = Math.round(
+      clamp(
+        7 +
+          modeFriction[offer.transport] +
+          transferPenalty(changes) +
+          connectionPenalty(offer) +
+          endpointTimePenalty(offer.departure_at, false) +
+          endpointTimePenalty(offer.arrival_at, true) +
+          (timeScore === undefined ? 0 : (100 - timeScore) * 0.14) +
+          (offer.is_multi_pnr ? 19 : 0) -
+          (reliability === undefined ? 0 : Math.max(0, reliability - 65) * 0.06),
+        3,
+        98,
+      ),
+    );
     const calmScore = 100 - stressScore;
     const confidence = dataConfidence(offer);
-    const weighted = weightedScore({
-      price: priceScore,
-      time: timeScore,
-      calm: calmScore,
-      reliability,
-      flexibility,
-    }, priority);
-    const severeRiskPenalty = priority === 'balance'
-      ? Math.max(0, stressScore - 65) * 0.22
-      : priority === 'calm'
-        ? Math.max(0, stressScore - 65) * 0.08
-        : 0;
-    const routeScore = Math.round(clamp(
-      weighted.score
-        - (1 - weighted.coverage) * 8
-        - (100 - confidence) * 0.04
-        - severeRiskPenalty,
-    ));
+    const weighted = weightedScore(
+      {
+        price: priceScore,
+        time: timeScore,
+        calm: calmScore,
+        reliability,
+        flexibility,
+      },
+      priority,
+    );
+    const severeRiskPenalty =
+      priority === 'balance'
+        ? Math.max(0, stressScore - 65) * 0.22
+        : priority === 'calm'
+          ? Math.max(0, stressScore - 65) * 0.08
+          : 0;
+    const routeScore = Math.round(
+      clamp(
+        weighted.score -
+          (1 - weighted.coverage) * 8 -
+          (100 - confidence) * 0.04 -
+          severeRiskPenalty,
+      ),
+    );
     const reasons = buildReasons(
       offer,
       priority,
@@ -347,23 +397,30 @@ export function scoreOffers<T extends ScoringInput>(
 }
 
 function recommendationFacts(offer: Offer, exclude?: RegExp) {
-  const positiveFacts = offer.analysis.reasons.filter((reason) => (
-    reason === 'без пересадок'
-    || !/(пересадк|затрагивает|оформляется)/i.test(reason)
-  )).filter((reason) => !exclude?.test(reason));
-  const facts = (positiveFacts.length ? positiveFacts : offer.analysis.reasons).slice(0, 2).join(' · ');
+  const positiveFacts = offer.analysis.reasons
+    .filter(
+      (reason) => reason === 'без пересадок' || !/(пересадк|затрагивает|оформляется)/i.test(reason),
+    )
+    .filter((reason) => !exclude?.test(reason));
+  const facts = (positiveFacts.length ? positiveFacts : offer.analysis.reasons)
+    .slice(0, 2)
+    .join(' · ');
   return facts ? `${facts}.` : '';
 }
 
 function recommendationMoney(amount: number, currency: string) {
-  const symbol = currency === 'RUB' ? '₽' : currency === 'EUR' ? '€' : currency === 'USD' ? '$' : currency;
+  const symbol =
+    currency === 'RUB' ? '₽' : currency === 'EUR' ? '€' : currency === 'USD' ? '$' : currency;
   return `${amount.toLocaleString('ru-RU')} ${symbol}`;
 }
 
 function recommendationDuration(minutes: number) {
   const hours = Math.floor(minutes / 60);
   const remainder = minutes % 60;
-  return [hours ? `${hours} ч` : '', remainder ? `${remainder} мин` : ''].filter(Boolean).join(' ') || '0 мин';
+  return (
+    [hours ? `${hours} ч` : '', remainder ? `${remainder} мин` : ''].filter(Boolean).join(' ') ||
+    '0 мин'
+  );
 }
 
 /**
@@ -373,43 +430,49 @@ function recommendationDuration(minutes: number) {
  */
 export function recommendOffers(offers: Offer[]): Recommendation[] {
   if (!offers.length) return [];
-  const balanced = (scoreOffers(offers, 'balance') as Offer[]).sort((left, right) => (
-    right.analysis.routeScore - left.analysis.routeScore
-    || right.analysis.confidence - left.analysis.confidence
-    || left.price.amount - right.price.amount
-    || left.duration_min - right.duration_min
-  ))[0];
-  const cheap = (scoreOffers(offers, 'price') as Offer[]).sort((left, right) => (
-    left.price.amount - right.price.amount
-    || left.analysis.stressScore - right.analysis.stressScore
-    || left.duration_min - right.duration_min
-  ))[0];
-  const fast = (scoreOffers(offers, 'time') as Offer[]).sort((left, right) => (
-    left.duration_min - right.duration_min
-    || left.analysis.changes - right.analysis.changes
-    || left.price.amount - right.price.amount
-  ))[0];
+  const balanced = (scoreOffers(offers, 'balance') as Offer[]).sort(
+    (left, right) =>
+      right.analysis.routeScore - left.analysis.routeScore ||
+      right.analysis.confidence - left.analysis.confidence ||
+      left.price.amount - right.price.amount ||
+      left.duration_min - right.duration_min,
+  )[0];
+  const cheap = (scoreOffers(offers, 'price') as Offer[]).sort(
+    (left, right) =>
+      left.price.amount - right.price.amount ||
+      left.analysis.stressScore - right.analysis.stressScore ||
+      left.duration_min - right.duration_min,
+  )[0];
+  const fast = (scoreOffers(offers, 'time') as Offer[]).sort(
+    (left, right) =>
+      left.duration_min - right.duration_min ||
+      left.analysis.changes - right.analysis.changes ||
+      left.price.amount - right.price.amount,
+  )[0];
 
   return [
     {
       kind: 'balanced',
       title: 'Умный выбор',
       eyebrow: 'лучший баланс',
-      caption: `${recommendationFacts(balanced)} Индекс баланса ${balanced.analysis.routeScore}/100.`.trim(),
+      caption:
+        `${recommendationFacts(balanced)} Индекс баланса ${balanced.analysis.routeScore}/100.`.trim(),
       offerId: balanced.offer_id,
     },
     {
       kind: 'cheap',
       title: 'Сохранить бюджет',
       eyebrow: 'минимум затрат',
-      caption: `Минимальная цена ${recommendationMoney(cheap.price.amount, cheap.price.currency)}. ${recommendationFacts(cheap, /низк.*цен/i)}`.trim(),
+      caption:
+        `Минимальная цена ${recommendationMoney(cheap.price.amount, cheap.price.currency)}. ${recommendationFacts(cheap, /низк.*цен/i)}`.trim(),
       offerId: cheap.offer_id,
     },
     {
       kind: 'fast',
       title: 'Успеть быстрее',
       eyebrow: 'минимум времени',
-      caption: `Минимальное время в пути: ${recommendationDuration(fast.duration_min)}. ${recommendationFacts(fast, /минимальн.*врем/i)}`.trim(),
+      caption:
+        `Минимальное время в пути: ${recommendationDuration(fast.duration_min)}. ${recommendationFacts(fast, /минимальн.*врем/i)}`.trim(),
       offerId: fast.offer_id,
     },
   ];

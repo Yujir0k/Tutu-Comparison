@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "isolatedModules": false,
+    "noEmit": false,
+    "outDir": ".server-dist",
+    "rootDir": ".",
+    "sourceMap": true,
+    "types": ["node"]
+  },
+  "include": ["server/**/*.ts", "src/locations.ts", "src/scoring.ts", "src/types.ts"],
+  "exclude": ["**/*.test.ts"]
+}

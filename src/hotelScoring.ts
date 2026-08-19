@@ -44,7 +44,7 @@ function average(values: number[]) {
 
 function rankPercentile(value: number, values: number[], lowerIsBetter: boolean) {
   if (values.length <= 1 || values.every((item) => item === values[0])) return 100;
-  const ordered = [...values].sort((left, right) => lowerIsBetter ? left - right : right - left);
+  const ordered = [...values].sort((left, right) => (lowerIsBetter ? left - right : right - left));
   const positions = ordered
     .map((item, index) => ({ item, index }))
     .filter((entry) => entry.item === value)
@@ -52,7 +52,12 @@ function rankPercentile(value: number, values: number[], lowerIsBetter: boolean)
   return 100 - (average(positions) / (ordered.length - 1)) * 100;
 }
 
-function relativeUtility(value: number | undefined, values: number[], lowerIsBetter: boolean, sensitivity: number) {
+function relativeUtility(
+  value: number | undefined,
+  values: number[],
+  lowerIsBetter: boolean,
+  sensitivity: number,
+) {
   if (!finite(value) || !values.length) return undefined;
   if (values.length === 1 || values.every((item) => item === values[0])) return 100;
   const best = lowerIsBetter ? Math.min(...values) : Math.max(...values);
@@ -86,9 +91,10 @@ function bayesianQuality(hotel: HotelOffer) {
   const effectiveCount = reviewCount > 0 ? reviewCount : 3;
   const priorRating = 8.2;
   const priorWeight = 40;
-  const adjustedRating = (rating * effectiveCount + priorRating * priorWeight) / (effectiveCount + priorWeight);
+  const adjustedRating =
+    (rating * effectiveCount + priorRating * priorWeight) / (effectiveCount + priorWeight);
   const quality = clamp((adjustedRating - 5) * 20);
-  const evidence = clamp(Math.log10(reviewCount + 1) / 3.7 * 100);
+  const evidence = clamp((Math.log10(reviewCount + 1) / 3.7) * 100);
   return clamp(quality * 0.84 + evidence * 0.16);
 }
 
@@ -135,7 +141,11 @@ export function hotelDataCompleteness(hotel: HotelOffer) {
     [typeof hotel.best_offer?.free_cancellation === 'boolean', 10],
     [typeof hotel.best_offer?.breakfast_included === 'boolean', 5],
     [positive(hotel.best_offer?.room_size_sqm), 5],
-    [typeof hotel.best_offer?.pay_at_hotel === 'boolean' || typeof hotel.best_offer?.pay_online === 'boolean', 5],
+    [
+      typeof hotel.best_offer?.pay_at_hotel === 'boolean' ||
+        typeof hotel.best_offer?.pay_online === 'boolean',
+      5,
+    ],
   ];
   return checks.reduce((score, [known, weight]) => score + (known ? weight : 0), 0);
 }
@@ -159,13 +169,35 @@ function locationScore(hotel: HotelOffer, hotels: HotelOffer[]) {
   const parts: Array<{ value: number; weight: number }> = [];
 
   if (center !== undefined) {
-    const absolute = thresholdScore(center, [[0, 100], [0.5, 98], [1, 94], [3, 76], [5, 58], [10, 25], [20, 0]]);
-    const relative = relativeUtility(center, finiteValues(hotels.map(hotelDistanceToCenter)), true, 0.38) || 0;
+    const absolute = thresholdScore(center, [
+      [0, 100],
+      [0.5, 98],
+      [1, 94],
+      [3, 76],
+      [5, 58],
+      [10, 25],
+      [20, 0],
+    ]);
+    const relative =
+      relativeUtility(center, finiteValues(hotels.map(hotelDistanceToCenter)), true, 0.38) || 0;
     parts.push({ value: absolute * 0.74 + relative * 0.26, weight: 0.68 });
   }
   if (metro !== undefined) {
-    const absolute = thresholdScore(metro, [[0, 100], [300, 98], [600, 84], [1000, 65], [2000, 35], [4000, 0]]);
-    const relative = relativeUtility(metro, finiteValues(hotels.map((item) => hotelMetroInfo(item)?.distanceMeters)), true, 0.32) || 0;
+    const absolute = thresholdScore(metro, [
+      [0, 100],
+      [300, 98],
+      [600, 84],
+      [1000, 65],
+      [2000, 35],
+      [4000, 0],
+    ]);
+    const relative =
+      relativeUtility(
+        metro,
+        finiteValues(hotels.map((item) => hotelMetroInfo(item)?.distanceMeters)),
+        true,
+        0.32,
+      ) || 0;
     parts.push({ value: absolute * 0.78 + relative * 0.22, weight: 0.32 });
   }
   if (!parts.length) return undefined;
@@ -175,14 +207,22 @@ function locationScore(hotel: HotelOffer, hotels: HotelOffer[]) {
 
 function roomSizeScore(size: number | null | undefined) {
   if (!positive(size)) return undefined;
-  return thresholdScore(size, [[8, 10], [12, 25], [16, 45], [20, 62], [25, 76], [35, 90], [50, 100]]);
+  return thresholdScore(size, [
+    [8, 10],
+    [12, 25],
+    [16, 45],
+    [20, 62],
+    [25, 76],
+    [35, 90],
+    [50, 100],
+  ]);
 }
 
 function comfortScore(hotel: HotelOffer) {
   const parts: Array<{ value: number; weight: number }> = [];
   const quality = bayesianQuality(hotel);
   if (quality !== undefined) parts.push({ value: quality, weight: 0.42 });
-  if (positive(hotel.stars)) parts.push({ value: clamp(hotel.stars / 5 * 100), weight: 0.25 });
+  if (positive(hotel.stars)) parts.push({ value: clamp((hotel.stars / 5) * 100), weight: 0.25 });
   const room = roomSizeScore(hotel.best_offer?.room_size_sqm);
   if (room !== undefined) parts.push({ value: room, weight: 0.2 });
   if (typeof hotel.best_offer?.breakfast_included === 'boolean') {
@@ -220,13 +260,19 @@ function hotelComponents(hotel: HotelOffer, hotels: HotelOffer[]) {
   } satisfies Record<HotelDimension, number | undefined>;
 }
 
-function weightedScore(components: Record<HotelDimension, number | undefined>, priority: HotelPriority) {
+function weightedScore(
+  components: Record<HotelDimension, number | undefined>,
+  priority: HotelPriority,
+) {
   const weights = priorityWeights[priority];
-  const available = (Object.keys(weights) as HotelDimension[]).filter((key) => finite(components[key]));
+  const available = (Object.keys(weights) as HotelDimension[]).filter((key) =>
+    finite(components[key]),
+  );
   const totalWeight = available.reduce((sum, key) => sum + weights[key], 0);
   if (!totalWeight) return { score: 0, coverage: 0 };
   return {
-    score: available.reduce((sum, key) => sum + Number(components[key]) * weights[key], 0) / totalWeight,
+    score:
+      available.reduce((sum, key) => sum + Number(components[key]) * weights[key], 0) / totalWeight,
     coverage: totalWeight,
   };
 }
@@ -241,13 +287,19 @@ function buildStrengths(hotel: HotelOffer, hotels: HotelOffer[], priority: Hotel
   };
   const price = hotel.best_offer?.price?.amount;
   const prices = finiteValues(hotels.map((item) => item.best_offer?.price?.amount));
-  if (finite(price) && prices.length && price <= Math.min(...prices) * 1.015) facts.price.push('Одна из самых низких цен');
+  if (finite(price) && prices.length && price <= Math.min(...prices) * 1.015)
+    facts.price.push('Одна из самых низких цен');
 
   const quality = bayesianQuality(hotel);
   const qualities = finiteValues(hotels.map(bayesianQuality));
   const rating = hotelRating(hotel);
   const reviews = hotelReviewCount(hotel);
-  if (quality !== undefined && qualities.length && quality >= Math.max(...qualities) - 0.5 && rating !== undefined) {
+  if (
+    quality !== undefined &&
+    qualities.length &&
+    quality >= Math.max(...qualities) - 0.5 &&
+    rating !== undefined
+  ) {
     facts.quality.push(`Самая надёжная высокая оценка: ${rating}/10`);
   } else if (rating !== undefined && rating >= 9 && (reviews || 0) >= 50) {
     facts.quality.push(`Высокая оценка ${rating}/10 по ${reviews} отзывам`);
@@ -255,14 +307,17 @@ function buildStrengths(hotel: HotelOffer, hotels: HotelOffer[], priority: Hotel
 
   const center = hotelDistanceToCenter(hotel);
   const centers = finiteValues(hotels.map(hotelDistanceToCenter));
-  if (center !== undefined && centers.length && center <= Math.min(...centers) + 0.05) facts.location.push('Ближе всего к центру');
+  if (center !== undefined && centers.length && center <= Math.min(...centers) + 0.05)
+    facts.location.push('Ближе всего к центру');
   const metro = hotelMetroInfo(hotel)?.distanceMeters;
   const metros = finiteValues(hotels.map((item) => hotelMetroInfo(item)?.distanceMeters));
-  if (metro !== undefined && metros.length && metro <= Math.min(...metros) + 10) facts.location.push('Ближе всего к метро');
+  if (metro !== undefined && metros.length && metro <= Math.min(...metros) + 10)
+    facts.location.push('Ближе всего к метро');
 
   const room = hotel.best_offer?.room_size_sqm;
   const rooms = finiteValues(hotels.map((item) => item.best_offer?.room_size_sqm ?? undefined));
-  if (finite(room) && rooms.length && room >= Math.max(...rooms)) facts.comfort.push(`Самый просторный номер: ${room} м²`);
+  if (finite(room) && rooms.length && room >= Math.max(...rooms))
+    facts.comfort.push(`Самый просторный номер: ${room} м²`);
   if (hotel.best_offer?.breakfast_included) facts.comfort.push('Завтрак включён');
   if (hotel.best_offer?.free_cancellation) facts.flexibility.push('Бесплатная отмена');
   if (hotel.best_offer?.pay_at_hotel) facts.flexibility.push('Оплата при заселении');
@@ -285,8 +340,8 @@ function buildTradeoff(hotel: HotelOffer, hotels: HotelOffer[]) {
   if (finite(price) && finite(minimumPrice) && price > minimumPrice * 1.05) {
     const difference = price - minimumPrice;
     candidates.push({
-      severity: Math.min(100, difference / minimumPrice * 180),
-      text: `дороже самого доступного варианта на ${Math.round(difference).toLocaleString('ru-RU')} ₽ (${Math.round(difference / minimumPrice * 100)}%).`,
+      severity: Math.min(100, (difference / minimumPrice) * 180),
+      text: `дороже самого доступного варианта на ${Math.round(difference).toLocaleString('ru-RU')} ₽ (${Math.round((difference / minimumPrice) * 100)}%).`,
     });
   }
 
@@ -310,22 +365,37 @@ function buildTradeoff(hotel: HotelOffer, hotels: HotelOffer[]) {
     });
   }
 
-  if (hotel.best_offer?.free_cancellation === false && hotels.some((item) => item.best_offer?.free_cancellation === true)) {
+  if (
+    hotel.best_offer?.free_cancellation === false &&
+    hotels.some((item) => item.best_offer?.free_cancellation === true)
+  ) {
     candidates.push({ severity: 32, text: 'бесплатная отмена не входит в текущее предложение.' });
   }
-  if (hotel.best_offer?.breakfast_included === false && hotels.some((item) => item.best_offer?.breakfast_included === true)) {
-    candidates.push({ severity: 14, text: 'завтрак не включён, хотя в сравнении есть варианты с завтраком.' });
+  if (
+    hotel.best_offer?.breakfast_included === false &&
+    hotels.some((item) => item.best_offer?.breakfast_included === true)
+  ) {
+    candidates.push({
+      severity: 14,
+      text: 'завтрак не включён, хотя в сравнении есть варианты с завтраком.',
+    });
   }
 
-  return candidates.sort((left, right) => right.severity - left.severity)[0]?.text
-    || 'существенного подтверждённого компромисса среди выбранных вариантов нет.';
+  return (
+    candidates.sort((left, right) => right.severity - left.severity)[0]?.text ||
+    'существенного подтверждённого компромисса среди выбранных вариантов нет.'
+  );
 }
 
 function prioritySummary(priority: HotelPriority) {
-  if (priority === 'price') return 'Минимальные затраты с проверкой качества, расположения и условий бронирования.';
-  if (priority === 'comfort') return 'Рейтинг с поправкой на число отзывов, категория, номер и включённые удобства.';
-  if (priority === 'location') return 'Расстояние до центра и метро с контролем качества, цены и гибкости.';
-  if (priority === 'flexibility') return 'Условия отмены и оплаты без игнорирования цены и качества проживания.';
+  if (priority === 'price')
+    return 'Минимальные затраты с проверкой качества, расположения и условий бронирования.';
+  if (priority === 'comfort')
+    return 'Рейтинг с поправкой на число отзывов, категория, номер и включённые удобства.';
+  if (priority === 'location')
+    return 'Расстояние до центра и метро с контролем качества, цены и гибкости.';
+  if (priority === 'flexibility')
+    return 'Условия отмены и оплаты без игнорирования цены и качества проживания.';
   return 'Взвешенный баланс цены, надёжности оценки, расположения, комфорта и условий.';
 }
 
@@ -335,56 +405,58 @@ function prioritySummary(priority: HotelPriority) {
  * чего применяется небольшой прозрачный штраф за недостаточность данных.
  */
 export function rankHotels(hotels: HotelOffer[], priority: HotelPriority): HotelScore[] {
-  const scored = hotels
-    .map((hotel) => {
-      const metrics = hotelComponents(hotel, hotels);
-      const confidence = hotelDataCompleteness(hotel);
-      const weighted = weightedScore(metrics, priority);
-      const total = Math.round(clamp(
-        weighted.score
-          - (1 - weighted.coverage) * 28
-          - (100 - confidence) * 0.04,
-      ));
-      return {
-        hotel,
-        total,
-        confidence,
-        components: {
-          price: metrics.price === undefined ? null : Math.round(metrics.price),
-          quality: metrics.quality === undefined ? null : Math.round(metrics.quality),
-          location: metrics.location === undefined ? null : Math.round(metrics.location),
-          comfort: metrics.comfort === undefined ? null : Math.round(metrics.comfort),
-          flexibility: metrics.flexibility === undefined ? null : Math.round(metrics.flexibility),
-        },
-        strengths: buildStrengths(hotel, hotels, priority),
-        tradeoff: buildTradeoff(hotel, hotels),
-        summary: prioritySummary(priority),
-      };
-    });
+  const scored = hotels.map((hotel) => {
+    const metrics = hotelComponents(hotel, hotels);
+    const confidence = hotelDataCompleteness(hotel);
+    const weighted = weightedScore(metrics, priority);
+    const total = Math.round(
+      clamp(weighted.score - (1 - weighted.coverage) * 28 - (100 - confidence) * 0.04),
+    );
+    return {
+      hotel,
+      total,
+      confidence,
+      components: {
+        price: metrics.price === undefined ? null : Math.round(metrics.price),
+        quality: metrics.quality === undefined ? null : Math.round(metrics.quality),
+        location: metrics.location === undefined ? null : Math.round(metrics.location),
+        comfort: metrics.comfort === undefined ? null : Math.round(metrics.comfort),
+        flexibility: metrics.flexibility === undefined ? null : Math.round(metrics.flexibility),
+      },
+      strengths: buildStrengths(hotel, hotels, priority),
+      tradeoff: buildTradeoff(hotel, hotels),
+      summary: prioritySummary(priority),
+    };
+  });
 
   return scored.sort((left, right) => {
     if (priority === 'price') {
-      const priceDifference = (left.hotel.best_offer?.price?.amount || Number.MAX_SAFE_INTEGER)
-        - (right.hotel.best_offer?.price?.amount || Number.MAX_SAFE_INTEGER);
+      const priceDifference =
+        (left.hotel.best_offer?.price?.amount || Number.MAX_SAFE_INTEGER) -
+        (right.hotel.best_offer?.price?.amount || Number.MAX_SAFE_INTEGER);
       if (priceDifference) return priceDifference;
     }
     if (priority === 'location') {
-      const centerDifference = (hotelDistanceToCenter(left.hotel) ?? Number.MAX_SAFE_INTEGER)
-        - (hotelDistanceToCenter(right.hotel) ?? Number.MAX_SAFE_INTEGER);
+      const centerDifference =
+        (hotelDistanceToCenter(left.hotel) ?? Number.MAX_SAFE_INTEGER) -
+        (hotelDistanceToCenter(right.hotel) ?? Number.MAX_SAFE_INTEGER);
       if (centerDifference) return centerDifference;
-      const metroDifference = (hotelMetroInfo(left.hotel)?.distanceMeters ?? Number.MAX_SAFE_INTEGER)
-        - (hotelMetroInfo(right.hotel)?.distanceMeters ?? Number.MAX_SAFE_INTEGER);
+      const metroDifference =
+        (hotelMetroInfo(left.hotel)?.distanceMeters ?? Number.MAX_SAFE_INTEGER) -
+        (hotelMetroInfo(right.hotel)?.distanceMeters ?? Number.MAX_SAFE_INTEGER);
       if (metroDifference) return metroDifference;
     }
     if (priority === 'flexibility') {
-      const flexibilityDifference = (right.components.flexibility ?? -1) - (left.components.flexibility ?? -1);
+      const flexibilityDifference =
+        (right.components.flexibility ?? -1) - (left.components.flexibility ?? -1);
       if (flexibilityDifference) return flexibilityDifference;
     }
     return (
-      right.total - left.total
-      || right.confidence - left.confidence
-      || (left.hotel.best_offer?.price?.amount || Number.MAX_SAFE_INTEGER) - (right.hotel.best_offer?.price?.amount || Number.MAX_SAFE_INTEGER)
-      || left.hotel.name.localeCompare(right.hotel.name, 'ru-RU')
+      right.total - left.total ||
+      right.confidence - left.confidence ||
+      (left.hotel.best_offer?.price?.amount || Number.MAX_SAFE_INTEGER) -
+        (right.hotel.best_offer?.price?.amount || Number.MAX_SAFE_INTEGER) ||
+      left.hotel.name.localeCompare(right.hotel.name, 'ru-RU')
     );
   });
 }

@@ -1,5 +1,5 @@
-export type TransportMode = "avia" | "railway" | "bus" | "etrain";
-export type Priority = "balance" | "price" | "time" | "calm";
+export type TransportMode = 'avia' | 'railway' | 'bus' | 'etrain';
+export type Priority = 'balance' | 'price' | 'time' | 'calm';
 
 export interface Money {
   amount: number;
@@ -122,9 +122,7 @@ export interface SearchMeta {
   has_more?: boolean;
   page?: number;
   page_size?: number;
-  mode_pagination?: Partial<
-    Record<TransportMode, { returned: number; has_more: boolean }>
-  >;
+  mode_pagination?: Partial<Record<TransportMode, { returned: number; has_more: boolean }>>;
   modes_summary?: Record<
     string,
     { count?: number; min_price?: number | null; min_duration_min?: number | null }
@@ -136,7 +134,7 @@ export interface SearchMeta {
 }
 
 export interface Recommendation {
-  kind: "balanced" | "cheap" | "fast";
+  kind: 'balanced' | 'cheap' | 'fast';
   title: string;
   eyebrow: string;
   caption: string;
@@ -256,81 +254,4 @@ export interface HotelSearchResponse {
     is_cached?: boolean;
     cached_at?: string;
   };
-}
-
-export interface HotelDetailsPayload {
-  hotelId: string;
-  checkIn: string;
-  checkOut: string;
-  adults: number;
-  childrenAges: number[];
-}
-
-export interface HotelAmenity {
-  id?: string | number;
-  name: string;
-  icon?: string;
-}
-
-export interface HotelAmenityGroup {
-  group_name?: string;
-  name?: string;
-  amenities?: Array<string | HotelAmenity>;
-}
-
-export interface HotelRate {
-  id?: string;
-  offerpack_hash?: string;
-  price?: Money;
-  price_basis?: string;
-  meal?: { included?: boolean | null; name?: string | null; type?: string | null };
-  breakfast_included?: boolean | null;
-  refundable?: boolean | null;
-  free_cancellation?: boolean | null;
-  free_cancellation_until?: string | null;
-  pay_at_hotel?: boolean | null;
-  pay_online?: boolean | null;
-  highlights?: Array<string | { type?: string; text?: string }>;
-  checkout_url?: string;
-}
-
-export interface HotelRoom {
-  room_name: string;
-  room_description?: string | null;
-  photos?: string[];
-  bed_summary?: string | null;
-  bed_type?: string | null;
-  view?: string | null;
-  room_size_sqm?: number | null;
-  max_occupancy?: number | null;
-  room_amenities?: HotelAmenity[];
-  amenity_groups?: HotelAmenityGroup[];
-  room_property_items?: Array<{ id?: string; icon?: string; text?: string }>;
-  price_from?: Money & { price_basis?: string };
-  rates?: HotelRate[];
-}
-
-export interface HotelDetailsResponse {
-  hotel: {
-    hotel_id?: string | number;
-    name: string;
-    address?: string;
-    stars?: number;
-    rating?: number;
-    review_count?: number;
-    check_in_time?: string;
-    check_out_time?: string;
-    photos?: string[];
-    amenity_groups?: HotelAmenityGroup[];
-    alias?: string;
-    review_summary?: ReviewSummary;
-  };
-  stay?: {
-    check_in?: string;
-    check_out?: string;
-    nights?: number;
-    guests?: { adults?: number; children_ages?: number[] };
-  };
-  rooms?: HotelRoom[];
-  notices?: Array<{ kind?: string; message?: string; agent_hint?: string }>;
 }

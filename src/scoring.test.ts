@@ -66,21 +66,34 @@ test('баланс не выбирает рискованный маршрут �
 
 test('пересадки, неудобные часы и multi-PNR последовательно увеличивают нагрузку', () => {
   const baseline = scoreOffers([transportOffer()], 'calm')[0].analysis.stressScore;
-  const complicated = scoreOffers([transportOffer({
-    segments_count: 3,
-    departure_at: '2026-08-26T23:30:00+03:00',
-    arrival_at: '2026-08-27T05:20:00+03:00',
-    is_multi_pnr: true,
-  })], 'calm')[0].analysis.stressScore;
+  const complicated = scoreOffers(
+    [
+      transportOffer({
+        segments_count: 3,
+        departure_at: '2026-08-26T23:30:00+03:00',
+        arrival_at: '2026-08-27T05:20:00+03:00',
+        is_multi_pnr: true,
+      }),
+    ],
+    'calm',
+  )[0].analysis.stressScore;
   assert.ok(complicated >= baseline + 50);
 });
 
 test('рейтинг с одним отзывом не надёжнее высокой оценки с большой выборкой', () => {
-  const tinySample = transportOffer({ offer_id: 'tiny', review_summary: { rating: 10, review_count: 1 } });
-  const reliable = transportOffer({ offer_id: 'reliable', review_summary: { rating: 9.3, review_count: 1_000 } });
+  const tinySample = transportOffer({
+    offer_id: 'tiny',
+    review_summary: { rating: 10, review_count: 1 },
+  });
+  const reliable = transportOffer({
+    offer_id: 'reliable',
+    review_summary: { rating: 9.3, review_count: 1_000 },
+  });
   const scored = scoreOffers([tinySample, reliable], 'balance');
-  const tinyReliability = scored.find((offer) => offer.offer_id === 'tiny')?.analysis.components.reliability;
-  const reliableReliability = scored.find((offer) => offer.offer_id === 'reliable')?.analysis.components.reliability;
+  const tinyReliability = scored.find((offer) => offer.offer_id === 'tiny')?.analysis.components
+    .reliability;
+  const reliableReliability = scored.find((offer) => offer.offer_id === 'reliable')?.analysis
+    .components.reliability;
   assert.ok(tinyReliability !== null && reliableReliability !== null);
   assert.ok(Number(reliableReliability) > Number(tinyReliability));
 });
@@ -219,12 +232,14 @@ test('нулевая оценка без отзывов считается от�
 });
 
 test('расчёт остаётся быстрым на выдаче существенно больше рабочей', () => {
-  const offers = Array.from({ length: 2_000 }, (_, index) => transportOffer({
-    offer_id: `offer-${index}`,
-    price: { amount: 2_000 + index * 7 },
-    duration_min: 80 + index % 700,
-    segments_count: index % 3 + 1,
-  }));
+  const offers = Array.from({ length: 2_000 }, (_, index) =>
+    transportOffer({
+      offer_id: `offer-${index}`,
+      price: { amount: 2_000 + index * 7 },
+      duration_min: 80 + (index % 700),
+      segments_count: (index % 3) + 1,
+    }),
+  );
   const started = performance.now();
   const result = scoreOffers(offers, 'balance');
   const elapsed = performance.now() - started;

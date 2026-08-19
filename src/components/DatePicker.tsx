@@ -1,5 +1,5 @@
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface DatePickerProps {
   value: string;
@@ -8,17 +8,17 @@ interface DatePickerProps {
   onChange: (value: string) => void;
 }
 
-const weekdays = ["пн", "вт", "ср", "чт", "пт", "сб", "вс"];
+const weekdays = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 
 function parseIso(value: string) {
-  const [year, month, day] = value.split("-").map(Number);
+  const [year, month, day] = value.split('-').map(Number);
   return new Date(year, month - 1, day, 12);
 }
 
 function toIso(date: Date) {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
@@ -33,16 +33,18 @@ function addDays(date: Date, amount: number) {
 }
 
 function monthLabel(date: Date) {
-  const label = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(date);
+  const label = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(date);
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 function displayDate(value: string) {
-  return new Intl.DateTimeFormat("ru-RU", {
-    day: "numeric",
-    month: "short",
-    weekday: "short",
-  }).format(parseIso(value)).replace(".", "");
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'short',
+    weekday: 'short',
+  })
+    .format(parseIso(value))
+    .replace('.', '');
 }
 
 function MonthGrid({
@@ -70,7 +72,9 @@ function MonthGrid({
     <div className="calendar-month">
       <strong>{monthLabel(month)}</strong>
       <div className="calendar-weekdays">
-        {weekdays.map((weekday) => <span key={weekday}>{weekday}</span>)}
+        {weekdays.map((weekday) => (
+          <span key={weekday}>{weekday}</span>
+        ))}
       </div>
       <div className="calendar-days">
         {cells.map((date) => {
@@ -79,11 +83,11 @@ function MonthGrid({
           const disabled = date < minDate || outside;
           return (
             <button
-              className={`${iso === selected ? "is-selected" : ""} ${outside ? "is-outside" : ""}`}
+              className={`${iso === selected ? 'is-selected' : ''} ${outside ? 'is-outside' : ''}`}
               key={iso}
               type="button"
               disabled={disabled}
-              aria-label={new Intl.DateTimeFormat("ru-RU", { dateStyle: "long" }).format(date)}
+              aria-label={new Intl.DateTimeFormat('ru-RU', { dateStyle: 'long' }).format(date)}
               aria-pressed={iso === selected}
               onClick={() => onSelect(date)}
             >
@@ -96,7 +100,7 @@ function MonthGrid({
   );
 }
 
-export function DatePicker({ value, min, label = "Когда", onChange }: DatePickerProps) {
+export function DatePicker({ value, min, label = 'Когда', onChange }: DatePickerProps) {
   const [open, setOpen] = useState(false);
   const [draftDate, setDraftDate] = useState(value);
   const [visibleMonth, setVisibleMonth] = useState(() => {
@@ -113,13 +117,13 @@ export function DatePicker({ value, min, label = "Когда", onChange }: DateP
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
     };
     const closeEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === 'Escape') setOpen(false);
     };
-    document.addEventListener("pointerdown", closeOutside);
-    document.addEventListener("keydown", closeEscape);
+    document.addEventListener('pointerdown', closeOutside);
+    document.addEventListener('keydown', closeEscape);
     return () => {
-      document.removeEventListener("pointerdown", closeOutside);
-      document.removeEventListener("keydown", closeEscape);
+      document.removeEventListener('pointerdown', closeOutside);
+      document.removeEventListener('keydown', closeEscape);
     };
   }, [open]);
 
@@ -131,7 +135,10 @@ export function DatePicker({ value, min, label = "Когда", onChange }: DateP
   };
 
   return (
-    <div className={`search-field search-field--date picker-field ${open ? "is-open" : ""}`} ref={rootRef}>
+    <div
+      className={`search-field search-field--date picker-field ${open ? 'is-open' : ''}`}
+      ref={rootRef}
+    >
       <span>{label}</span>
       <button
         className="picker-field__trigger"
@@ -150,7 +157,11 @@ export function DatePicker({ value, min, label = "Когда", onChange }: DateP
       </button>
 
       {open && (
-        <div className="calendar-popover" role="dialog" aria-label={`Выберите дату: ${label.toLowerCase()}`}>
+        <div
+          className="calendar-popover"
+          role="dialog"
+          aria-label={`Выберите дату: ${label.toLowerCase()}`}
+        >
           <button
             className="calendar-nav calendar-nav--prev"
             type="button"
@@ -169,18 +180,36 @@ export function DatePicker({ value, min, label = "Когда", onChange }: DateP
             <ChevronRight size={20} />
           </button>
           <div className="calendar-months">
-            <MonthGrid month={visibleMonth} selected={draftDate} minDate={minDate} onSelect={selectDate} />
-            <MonthGrid month={addMonths(visibleMonth, 1)} selected={draftDate} minDate={minDate} onSelect={selectDate} />
+            <MonthGrid
+              month={visibleMonth}
+              selected={draftDate}
+              minDate={minDate}
+              onSelect={selectDate}
+            />
+            <MonthGrid
+              month={addMonths(visibleMonth, 1)}
+              selected={draftDate}
+              minDate={minDate}
+              onSelect={selectDate}
+            />
           </div>
           <div className="calendar-footer">
             <div className="calendar-quick">
               <span>Быстрый выбор</span>
-              <button type="button" onClick={() => selectDate(minDate)}>Завтра</button>
-              <button type="button" onClick={() => selectDate(addDays(minDate, 6))}>Через неделю</button>
+              <button type="button" onClick={() => selectDate(minDate)}>
+                Завтра
+              </button>
+              <button type="button" onClick={() => selectDate(addDays(minDate, 6))}>
+                Через неделю
+              </button>
             </div>
             <div className="calendar-actions">
-              <button type="button" onClick={() => setDraftDate(min)}>Сбросить</button>
-              <button className="calendar-actions__apply" type="button" onClick={applyDate}>Выбрать</button>
+              <button type="button" onClick={() => setDraftDate(min)}>
+                Сбросить
+              </button>
+              <button className="calendar-actions__apply" type="button" onClick={applyDate}>
+                Выбрать
+              </button>
             </div>
           </div>
         </div>

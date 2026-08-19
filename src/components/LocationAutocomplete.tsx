@@ -1,6 +1,6 @@
-import { Check, MapPin, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { searchTravelLocations, type TravelLocation } from "../locations";
+import { Check, MapPin, Search } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { searchTravelLocations, type TravelLocation } from '../locations';
 
 interface LocationAutocompleteProps {
   className: string;
@@ -23,45 +23,47 @@ export function LocationAutocomplete({
 }: LocationAutocompleteProps) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [remoteOptions, setRemoteOptions] = useState<TravelLocation[]>([]);
-  const [loadingRemote, setLoadingRemote] = useState(false);
+  const [remoteResult, setRemoteResult] = useState<{ query: string; locations: TravelLocation[] }>({
+    query: '',
+    locations: [],
+  });
+  const [loadingQuery, setLoadingQuery] = useState('');
+  const query = value.trim();
+  const loadingRemote = !selectedId && loadingQuery === query;
   const localOptions = useMemo(() => searchTravelLocations(value, excludeId), [excludeId, value]);
   const options = useMemo(() => {
+    const remoteOptions = !selectedId && remoteResult.query === query ? remoteResult.locations : [];
     const seen = new Set<string>();
     return [...remoteOptions, ...localOptions]
       .filter((location) => location.id !== excludeId)
       .filter((location) => {
-        const key = `${location.name.toLocaleLowerCase("ru-RU")}|${location.region.toLocaleLowerCase("ru-RU")}`;
+        const key = `${location.name.toLocaleLowerCase('ru-RU')}|${location.region.toLocaleLowerCase('ru-RU')}`;
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
       })
       .slice(0, 9);
-  }, [excludeId, localOptions, remoteOptions]);
-  const listId = `location-${label === "Откуда" ? "from" : "to"}`;
+  }, [excludeId, localOptions, query, remoteResult, selectedId]);
+  const listId = `location-${label === 'Откуда' ? 'from' : 'to'}`;
 
   useEffect(() => {
-    const query = value.trim();
-    if (query.length < 2 || selectedId) {
-      setRemoteOptions([]);
-      setLoadingRemote(false);
-      return;
-    }
+    if (query.length < 2 || selectedId) return undefined;
 
-    setRemoteOptions([]);
     const controller = new AbortController();
     const timeout = window.setTimeout(async () => {
-      setLoadingRemote(true);
+      setLoadingQuery(query);
       try {
         const response = await fetch(`/api/locations?q=${encodeURIComponent(query)}`, {
           signal: controller.signal,
         });
         const data = (await response.json()) as { locations?: TravelLocation[] };
-        if (response.ok) setRemoteOptions(data.locations || []);
+        if (response.ok) setRemoteResult({ query, locations: data.locations || [] });
       } catch (error) {
-        if (!(error instanceof DOMException && error.name === "AbortError")) setRemoteOptions([]);
+        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+          setRemoteResult({ query, locations: [] });
+        }
       } finally {
-        if (!controller.signal.aborted) setLoadingRemote(false);
+        if (!controller.signal.aborted) setLoadingQuery('');
       }
     }, 320);
 
@@ -69,7 +71,7 @@ export function LocationAutocomplete({
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [selectedId, value]);
+  }, [query, selectedId]);
 
   const choose = (location: TravelLocation) => {
     onSelect(location);
@@ -78,7 +80,9 @@ export function LocationAutocomplete({
   };
 
   return (
-    <div className={`search-field location-field ${className} ${open ? "is-open" : ""} ${value && !selectedId ? "is-unconfirmed" : ""}`}>
+    <div
+      className={`search-field location-field ${className} ${open ? 'is-open' : ''} ${value && !selectedId ? 'is-unconfirmed' : ''}`}
+    >
       <span>{label}</span>
       <input
         value={value}
@@ -100,53 +104,78 @@ export function LocationAutocomplete({
           setActiveIndex(0);
         }}
         onKeyDown={(event) => {
-          if (event.key === "ArrowDown") {
+          if (event.key === 'ArrowDown') {
             event.preventDefault();
             setOpen(true);
             setActiveIndex((current) => Math.min(current + 1, Math.max(options.length - 1, 0)));
           }
-          if (event.key === "ArrowUp") {
+          if (event.key === 'ArrowUp') {
             event.preventDefault();
             setActiveIndex((current) => Math.max(current - 1, 0));
           }
-          if (event.key === "Enter" && open) {
+          if (event.key === 'Enter' && open) {
             event.preventDefault();
             if (options[activeIndex]) choose(options[activeIndex]);
           }
-          if (event.key === "Escape") setOpen(false);
+          if (event.key === 'Escape') setOpen(false);
         }}
       />
 
       {open && (
-        <div className="location-dropdown" id={listId} role="listbox" aria-label={`Подсказки: ${label.toLowerCase()}`}>
+        <div
+          className="location-dropdown"
+          id={listId}
+          role="listbox"
+          aria-label={`Подсказки: ${label.toLowerCase()}`}
+        >
           <div className="location-dropdown__title">
-            {loadingRemote ? "Ищем в Туту…" : value.trim() ? "Города и транспортные узлы" : "Популярные направления"}
+            {loadingRemote
+              ? 'Ищем в Туту…'
+              : value.trim()
+                ? 'Города и транспортные узлы'
+                : 'Популярные направления'}
           </div>
-          {options.length ? options.map((location, index) => (
-            <button
-              className={index === activeIndex ? "is-active" : ""}
-              key={location.id}
-              type="button"
-              role="option"
-              aria-selected={location.id === selectedId}
-              onMouseDown={(event) => event.preventDefault()}
-              onMouseEnter={() => setActiveIndex(index)}
-              onClick={() => choose(location)}
-            >
-              <span className="location-option__icon"><MapPin size={18} /></span>
-              <span className="location-option__text">
-                <strong>{location.name}</strong>
-                <small>{[location.region !== location.name ? location.region : null, location.country].filter(Boolean).join(", ")}</small>
-              </span>
-              {location.code && <span className="location-option__code">{location.code}</span>}
-              {location.id === selectedId && <Check className="location-option__check" size={18} />}
-            </button>
-          )) : (
+          {options.length ? (
+            options.map((location, index) => (
+              <button
+                className={index === activeIndex ? 'is-active' : ''}
+                key={location.id}
+                type="button"
+                role="option"
+                aria-selected={location.id === selectedId}
+                onMouseDown={(event) => event.preventDefault()}
+                onMouseEnter={() => setActiveIndex(index)}
+                onClick={() => choose(location)}
+              >
+                <span className="location-option__icon">
+                  <MapPin size={18} />
+                </span>
+                <span className="location-option__text">
+                  <strong>{location.name}</strong>
+                  <small>
+                    {[location.region !== location.name ? location.region : null, location.country]
+                      .filter(Boolean)
+                      .join(', ')}
+                  </small>
+                </span>
+                {location.code && <span className="location-option__code">{location.code}</span>}
+                {location.id === selectedId && (
+                  <Check className="location-option__check" size={18} />
+                )}
+              </button>
+            ))
+          ) : (
             <div className="location-dropdown__empty">
               <Search size={22} />
               <div>
-                <strong>{loadingRemote ? "Ищем направление…" : "Туту не нашёл это направление"}</strong>
-                <small>{loadingRemote ? 'Ищем подходящие места' : 'Уточните название города, вокзала или аэропорта'}</small>
+                <strong>
+                  {loadingRemote ? 'Ищем направление…' : 'Туту не нашёл это направление'}
+                </strong>
+                <small>
+                  {loadingRemote
+                    ? 'Ищем подходящие места'
+                    : 'Уточните название города, вокзала или аэропорта'}
+                </small>
               </div>
             </div>
           )}

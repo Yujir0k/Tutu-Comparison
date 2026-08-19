@@ -1,5 +1,5 @@
-import { GitCompareArrows, Heart, Menu, UserRound } from "lucide-react";
-import { TutuLogo } from "./TutuLogo";
+import { GitCompareArrows, Heart, Menu, UserRound } from 'lucide-react';
+import { TutuLogo } from './TutuLogo';
 
 interface HeaderProps {
   compareCount: number;
@@ -23,7 +23,12 @@ export function Header({ compareCount, onCompare }: HeaderProps) {
         </nav>
 
         <div className="site-actions">
-          <button className="header-link header-link--compare" type="button" aria-label="Открыть сравнение" onClick={onCompare}>
+          <button
+            className="header-link header-link--compare"
+            type="button"
+            aria-label="Открыть сравнение"
+            onClick={onCompare}
+          >
             <GitCompareArrows size={19} strokeWidth={2.4} />
             <span>Сравнение</span>
             {compareCount > 0 && <b>{compareCount}</b>}
