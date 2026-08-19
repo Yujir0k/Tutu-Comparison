@@ -7,6 +7,14 @@
       name="description"
       content="Пользовательское руководство сервиса Туту Сравнение: поиск, фильтры, сравнение и объяснимая рекомендация."
     />
+    <meta name="author" content="Команда Туту Сравнение" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Руководство пользователя — Туту Сравнение" />
+    <meta
+      property="og:description"
+      content="Интерактивное руководство: от поиска до объяснимого выбора транспорта или отеля."
+    />
     <meta name="theme-color" content="#191274" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>Руководство пользователя — Туту Сравнение</title>
@@ -52,6 +60,31 @@
         color: var(--violet);
       }
 
+      a:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid #f3b53f;
+        outline-offset: 4px;
+        border-radius: 6px;
+      }
+
+      .skip-link {
+        position: fixed;
+        z-index: 100;
+        top: 10px;
+        left: 10px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        color: var(--violet-dark);
+        font-weight: 800;
+        text-decoration: none;
+        background: white;
+        transform: translateY(-150%);
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
       .topbar {
         position: sticky;
         z-index: 20;
@@ -88,6 +121,20 @@
         color: #eae7ff;
         font-size: 14px;
         text-decoration: none;
+      }
+
+      .top-actions {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .status-pill {
+        padding: 4px 9px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 999px;
+        color: #dcd7ff;
+        font-size: 12px;
       }
 
       .hero {
@@ -134,6 +181,22 @@
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
+      }
+
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+
+      .hero-chip {
+        padding: 6px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        color: #e8e5ff;
+        font-size: 13px;
+        background: rgba(255, 255, 255, 0.08);
       }
 
       .button {
@@ -217,10 +280,49 @@
       .screenshot {
         display: block;
         width: 100%;
-        margin-top: 28px;
         border: 1px solid var(--line);
         border-radius: 20px;
         box-shadow: 0 18px 50px rgba(37, 31, 91, 0.12);
+      }
+
+      figure {
+        margin: 28px 0 0;
+      }
+
+      figcaption {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+      }
+
+      .journey {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        margin: 24px 0 30px;
+      }
+
+      .journey-item {
+        padding: 18px 14px;
+        border: 1px solid #ded9ff;
+        border-radius: 16px;
+        background: linear-gradient(145deg, white, #f6f4ff);
+      }
+
+      .journey-item span {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--violet);
+        font-size: 12px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .journey-item strong {
+        display: block;
+        font-size: 15px;
+        line-height: 1.3;
       }
 
       .steps,
@@ -276,6 +378,29 @@
       .callout-success {
         border-left-color: var(--green);
         background: var(--green-soft);
+      }
+
+      .outcome {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        margin-top: 22px;
+        padding: 16px 18px;
+        border: 1px solid #cfe8c8;
+        border-radius: 14px;
+        background: var(--green-soft);
+      }
+
+      .outcome-mark {
+        display: grid;
+        flex: 0 0 28px;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        border-radius: 50%;
+        color: white;
+        font-weight: 900;
+        background: var(--green);
       }
 
       .table-wrap {
@@ -378,6 +503,10 @@
           grid-template-columns: 1fr;
         }
 
+        .journey {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
         .mobile-demo img {
           width: min(390px, 100%);
         }
@@ -398,6 +527,10 @@
           font-size: 13px;
         }
 
+        .status-pill {
+          display: none;
+        }
+
         .hero {
           padding: 52px 20px 46px;
         }
@@ -415,26 +548,76 @@
         h1 {
           font-size: 40px;
         }
+
+        .journey {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        * {
+          transition: none !important;
+        }
+      }
+
+      @media print {
+        .topbar,
+        .toc,
+        .hero-actions {
+          display: none;
+        }
+
+        .hero {
+          padding: 32px 0;
+          color: var(--ink);
+          background: white;
+        }
+
+        .lead,
+        .eyebrow {
+          color: var(--muted);
+        }
+
+        .layout {
+          display: block;
+          padding: 24px 0;
+        }
       }
     </style>
   </head>
-  <body>
+  <body itemscope itemtype="https://schema.org/TechArticle">
+    <meta itemprop="inLanguage" content="ru" />
+    <meta itemprop="dateModified" content="2026-08-19" />
+    <a class="skip-link" href="#guide-content">Перейти к руководству</a>
     <header class="topbar">
       <a class="brand" href="/">
         <span class="brand-mark" aria-hidden="true">↝</span>
         <span>Туту Сравнение</span>
       </a>
-      <a class="back-link" href="/">Открыть сервис →</a>
+      <div class="top-actions">
+        <span class="status-pill">Интерактивное руководство · v1.1</span>
+        <a class="back-link" href="/">Открыть сервис →</a>
+      </div>
     </header>
 
     <div class="hero">
       <div class="hero-inner">
-        <p class="eyebrow">Руководство пользователя</p>
-        <h1>Сравнить варианты и уверенно выбрать лучший</h1>
-        <p class="lead">
+        <p class="eyebrow">Интерактивная документация продукта</p>
+        <h1 itemprop="headline">Сравнить варианты и уверенно выбрать лучший</h1>
+        <p class="lead" itemprop="description">
           От первого поиска до перехода на Туту: короткая инструкция по транспорту, отелям, фильтрам
           и объяснимой рекомендации.
         </p>
+        <div class="hero-meta" aria-label="Характеристики руководства">
+          <span class="hero-chip">≈ 5 минут</span>
+          <span class="hero-chip">Без регистрации</span>
+          <span class="hero-chip">Desktop и mobile</span>
+          <span class="hero-chip">Реальные данные Tutu MCP</span>
+        </div>
         <div class="hero-actions">
           <a class="button button-primary" href="#quick-start">Начать за 60 секунд</a>
           <a class="button" href="#recommendation">Как читать рекомендацию</a>
@@ -446,16 +629,18 @@
       <nav class="toc" aria-label="Содержание руководства">
         <strong>На этой странице</strong>
         <a href="#purpose">Назначение</a>
+        <a href="#journey">Карта сценария</a>
         <a href="#quick-start">Быстрый старт</a>
         <a href="#transport">Транспорт</a>
         <a href="#hotels">Отели</a>
         <a href="#recommendation">Рекомендация</a>
         <a href="#checkout">Переход к покупке</a>
         <a href="#mobile">Мобильная версия</a>
+        <a href="#glossary">Термины интерфейса</a>
         <a href="#faq">Вопросы и ошибки</a>
       </nav>
 
-      <main>
+      <main id="guide-content" itemprop="articleBody">
         <section id="purpose">
           <p class="eyebrow">Зачем это нужно</p>
           <h2>Все значимые различия — на одном экране</h2>
@@ -482,11 +667,33 @@
               <p>Финальная цена и наличие подтверждаются в оригинальном предложении.</p>
             </div>
           </div>
-          <img
-            class="screenshot"
-            src="assets/product-desktop.jpg"
-            alt="Главный экран сервиса Туту Сравнение"
-          />
+          <figure>
+            <img
+              class="screenshot"
+              src="assets/product-desktop.jpg"
+              alt="Главный экран сервиса Туту Сравнение с формой поиска транспорта и отелей"
+            />
+            <figcaption>
+              Главный экран: выбор продуктового сценария и параметры поиска находятся в одном
+              контексте.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="journey">
+          <p class="eyebrow">Карта сценария</p>
+          <h2>Один понятный путь от запроса до покупки</h2>
+          <p>
+            Каждый этап имеет конкретный результат. Можно вернуться назад, изменить shortlist или
+            приоритет — повторно вводить исходные данные не потребуется.
+          </p>
+          <div class="journey" aria-label="Пять этапов пользовательского сценария">
+            <div class="journey-item"><span>01</span><strong>Задать поездку</strong></div>
+            <div class="journey-item"><span>02</span><strong>Отфильтровать выдачу</strong></div>
+            <div class="journey-item"><span>03</span><strong>Собрать shortlist</strong></div>
+            <div class="journey-item"><span>04</span><strong>Понять рекомендацию</strong></div>
+            <div class="journey-item"><span>05</span><strong>Перейти на Туту</strong></div>
+          </div>
         </section>
 
         <section id="quick-start">
@@ -517,6 +724,13 @@
           <div class="callout callout-success">
             <strong>Практический совет:</strong> обычно достаточно сравнить 3–5 подходящих
             предложений. Это сохраняет фокус, но не ограничивает выбор.
+          </div>
+          <div class="outcome">
+            <span class="outcome-mark" aria-hidden="true">✓</span>
+            <div>
+              <strong>Результат этапа:</strong> в сравнении находятся только действительно
+              подходящие вам варианты.
+            </div>
           </div>
         </section>
 
@@ -562,6 +776,13 @@
             длительность, пересадки, багаж, условия тарифа и рейтинг. Повторное нажатие «Сравнить»
             удаляет карточку из shortlist.
           </p>
+          <div class="outcome">
+            <span class="outcome-mark" aria-hidden="true">✓</span>
+            <div>
+              <strong>Результат:</strong> единая таблица билетов с лидером, преимуществами и главным
+              компромиссом.
+            </div>
+          </div>
         </section>
 
         <section id="hotels">
@@ -607,6 +828,13 @@
           <div class="callout">
             Можно добавить любое количество отелей. На широком экране видны четыре варианта; стрелки
             сдвигают таблицу по одному отелю. На телефоне используйте горизонтальный жест.
+          </div>
+          <div class="outcome">
+            <span class="outcome-mark" aria-hidden="true">✓</span>
+            <div>
+              <strong>Результат:</strong> сравнение отелей по цене, качеству, расположению и
+              подтверждённым условиям.
+            </div>
           </div>
         </section>
 
@@ -656,6 +884,13 @@
             «Туту Сравнение» не принимает оплату, не хранит платёжные данные и не дублирует выбор
             места, тарифа или номера.
           </p>
+          <h3>Проверьте перед оплатой</h3>
+          <ul>
+            <li>совпадают даты, маршрут и состав путешественников;</li>
+            <li>цена и наличие не изменились;</li>
+            <li>устраивают правила возврата или отмены;</li>
+            <li>нужные багаж, питание и другие условия включены в тариф.</li>
+          </ul>
         </section>
 
         <section id="mobile">
@@ -671,6 +906,43 @@
               </ul>
             </div>
             <img src="assets/product-mobile.jpg" alt="Мобильный интерфейс сервиса" />
+          </div>
+        </section>
+
+        <section id="glossary">
+          <p class="eyebrow">Термины интерфейса</p>
+          <h2>Что означает каждый элемент сравнения</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Термин</th>
+                  <th>Значение</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Shortlist</strong></td>
+                  <td>Выбранные вами варианты для подробного сопоставления.</td>
+                </tr>
+                <tr>
+                  <td><strong>Приоритет</strong></td>
+                  <td>Цель выбора, меняющая веса критериев, но не исходные факты.</td>
+                </tr>
+                <tr>
+                  <td><strong>Индекс</strong></td>
+                  <td>Относительная оценка варианта внутри текущего набора.</td>
+                </tr>
+                <tr>
+                  <td><strong>Главный компромисс</strong></td>
+                  <td>Наиболее важная уступка лучшей альтернативе.</td>
+                </tr>
+                <tr>
+                  <td><strong>«—»</strong></td>
+                  <td>Источник не вернул параметр; значение не было придумано.</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -720,7 +992,8 @@
 
     <footer>
       <div class="footer-inner">
-        <strong>Туту Сравнение</strong> · Пользовательская документация<br />
+        <strong>Туту Сравнение</strong> · Интерактивная пользовательская документация · v1.1 ·
+        обновлено <time datetime="2026-08-19">19 августа 2026</time><br />
         <a href="/">Открыть сервис</a> ·
         <a href="https://github.com/R2NN/compering/blob/main/docs/USER_GUIDE.md"
           >Версия на GitHub</a
