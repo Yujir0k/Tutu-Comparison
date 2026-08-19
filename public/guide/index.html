@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Пользовательское руководство сервиса Туту Сравнение: поиск, фильтры, сравнение и объяснимая рекомендация."
+    />
+    <meta name="theme-color" content="#191274" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Руководство пользователя — Туту Сравнение</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #10152f;
+        --muted: #59617c;
+        --line: #e3e5ef;
+        --paper: #ffffff;
+        --soft: #f5f4ff;
+        --violet: #6c58f6;
+        --violet-dark: #191274;
+        --green: #268b1d;
+        --green-soft: #edf9e9;
+        --orange: #e87316;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: #fafbff;
+        line-height: 1.6;
+      }
+
+      a {
+        color: var(--violet);
+      }
+
+      .topbar {
+        position: sticky;
+        z-index: 20;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 64px;
+        padding: 0 5vw;
+        color: white;
+        background: rgba(25, 18, 116, 0.96);
+        backdrop-filter: blur(16px);
+      }
+
+      .brand {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        color: white;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        place-items: center;
+        border-radius: 9px;
+        background: var(--violet);
+      }
+
+      .back-link {
+        color: #eae7ff;
+        font-size: 14px;
+        text-decoration: none;
+      }
+
+      .hero {
+        overflow: hidden;
+        padding: 72px 5vw 64px;
+        color: white;
+        background:
+          radial-gradient(circle at 82% 16%, rgba(129, 108, 255, 0.72), transparent 25%),
+          linear-gradient(135deg, #17106e 0%, #241a93 62%, #3325ad 100%);
+      }
+
+      .hero-inner,
+      .layout,
+      .footer-inner {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: #c7beff;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 850px;
+        margin: 0;
+        font-size: clamp(38px, 6vw, 68px);
+        line-height: 1.04;
+        letter-spacing: -0.045em;
+      }
+
+      .lead {
+        max-width: 760px;
+        margin: 24px 0 30px;
+        color: #e5e1ff;
+        font-size: clamp(18px, 2vw, 22px);
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        min-height: 48px;
+        padding: 0 20px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 12px;
+        color: white;
+        font-weight: 750;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .button-primary {
+        color: var(--violet-dark);
+        background: white;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 250px minmax(0, 1fr);
+        gap: 52px;
+        padding: 48px 24px 96px;
+      }
+
+      .toc {
+        position: sticky;
+        top: 92px;
+        align-self: start;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--paper);
+        box-shadow: 0 10px 32px rgba(37, 31, 91, 0.06);
+      }
+
+      .toc strong {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .toc a {
+        display: block;
+        padding: 6px 0;
+        color: var(--muted);
+        font-size: 14px;
+        text-decoration: none;
+      }
+
+      .toc a:hover {
+        color: var(--violet);
+      }
+
+      main {
+        min-width: 0;
+      }
+
+      section {
+        scroll-margin-top: 94px;
+        margin-bottom: 68px;
+      }
+
+      h2 {
+        margin: 0 0 18px;
+        font-size: clamp(28px, 4vw, 40px);
+        line-height: 1.15;
+        letter-spacing: -0.025em;
+      }
+
+      h3 {
+        margin: 32px 0 12px;
+        font-size: 22px;
+      }
+
+      p {
+        margin: 0 0 16px;
+      }
+
+      .screenshot {
+        display: block;
+        width: 100%;
+        margin-top: 28px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        box-shadow: 0 18px 50px rgba(37, 31, 91, 0.12);
+      }
+
+      .steps,
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+      }
+
+      .step,
+      .feature {
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--paper);
+      }
+
+      .step-number {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        margin-bottom: 14px;
+        place-items: center;
+        border-radius: 11px;
+        color: white;
+        font-weight: 800;
+        background: var(--violet);
+      }
+
+      .step strong,
+      .feature strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 17px;
+      }
+
+      .step p,
+      .feature p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      .callout {
+        margin: 24px 0;
+        padding: 18px 20px;
+        border-left: 4px solid var(--violet);
+        border-radius: 4px 14px 14px 4px;
+        background: var(--soft);
+      }
+
+      .callout-success {
+        border-left-color: var(--green);
+        background: var(--green-soft);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        margin: 22px 0;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: white;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 15px 18px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      th {
+        color: #3e4663;
+        font-size: 13px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        background: #f6f7fb;
+      }
+
+      ul,
+      ol {
+        padding-left: 24px;
+      }
+
+      li {
+        margin: 7px 0;
+      }
+
+      details {
+        margin: 10px 0;
+        padding: 0 18px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: white;
+      }
+
+      summary {
+        padding: 17px 0;
+        cursor: pointer;
+        font-weight: 750;
+      }
+
+      details p {
+        padding-bottom: 17px;
+        color: var(--muted);
+      }
+
+      .mobile-demo {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 36px;
+        align-items: center;
+      }
+
+      .mobile-demo img {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: 0 18px 50px rgba(37, 31, 91, 0.12);
+      }
+
+      footer {
+        padding: 38px 24px;
+        color: #c9c5ec;
+        background: #111052;
+      }
+
+      footer a {
+        color: white;
+      }
+
+      @media (max-width: 850px) {
+        .layout {
+          display: block;
+          padding-top: 32px;
+        }
+
+        .toc {
+          position: static;
+          margin-bottom: 48px;
+        }
+
+        .mobile-demo {
+          grid-template-columns: 1fr;
+        }
+
+        .mobile-demo img {
+          width: min(390px, 100%);
+        }
+      }
+
+      @media (max-width: 580px) {
+        .topbar {
+          min-height: 56px;
+          padding: 0 18px;
+        }
+
+        .back-link {
+          font-size: 0;
+        }
+
+        .back-link::after {
+          content: 'К сервису →';
+          font-size: 13px;
+        }
+
+        .hero {
+          padding: 52px 20px 46px;
+        }
+
+        .layout {
+          padding-right: 16px;
+          padding-left: 16px;
+        }
+
+        .steps,
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+
+        h1 {
+          font-size: 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">↝</span>
+        <span>Туту Сравнение</span>
+      </a>
+      <a class="back-link" href="/">Открыть сервис →</a>
+    </header>
+
+    <div class="hero">
+      <div class="hero-inner">
+        <p class="eyebrow">Руководство пользователя</p>
+        <h1>Сравнить варианты и уверенно выбрать лучший</h1>
+        <p class="lead">
+          От первого поиска до перехода на Туту: короткая инструкция по транспорту, отелям, фильтрам
+          и объяснимой рекомендации.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#quick-start">Начать за 60 секунд</a>
+          <a class="button" href="#recommendation">Как читать рекомендацию</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <nav class="toc" aria-label="Содержание руководства">
+        <strong>На этой странице</strong>
+        <a href="#purpose">Назначение</a>
+        <a href="#quick-start">Быстрый старт</a>
+        <a href="#transport">Транспорт</a>
+        <a href="#hotels">Отели</a>
+        <a href="#recommendation">Рекомендация</a>
+        <a href="#checkout">Переход к покупке</a>
+        <a href="#mobile">Мобильная версия</a>
+        <a href="#faq">Вопросы и ошибки</a>
+      </nav>
+
+      <main>
+        <section id="purpose">
+          <p class="eyebrow">Зачем это нужно</p>
+          <h2>Все значимые различия — на одном экране</h2>
+          <p>
+            Самый дешёвый билет может оказаться ночным и без багажа, а отель с высокой оценкой —
+            находиться далеко от центра. «Туту Сравнение» сопоставляет реальные характеристики
+            предложений, называет преимущества и честно показывает главный компромисс.
+          </p>
+          <div class="feature-grid">
+            <div class="feature">
+              <strong>Только подтверждённые факты</strong>
+              <p>Неизвестные параметры не заменяются догадками или средними значениями.</p>
+            </div>
+            <div class="feature">
+              <strong>Объяснимый результат</strong>
+              <p>Рекомендация связана с ценой, временем, качеством и условиями карточек.</p>
+            </div>
+            <div class="feature">
+              <strong>Вы контролируете приоритет</strong>
+              <p>Баланс, цена, скорость, спокойствие, комфорт или гибкие условия.</p>
+            </div>
+            <div class="feature">
+              <strong>Покупка остаётся на Туту</strong>
+              <p>Финальная цена и наличие подтверждаются в оригинальном предложении.</p>
+            </div>
+          </div>
+          <img
+            class="screenshot"
+            src="assets/product-desktop.jpg"
+            alt="Главный экран сервиса Туту Сравнение"
+          />
+        </section>
+
+        <section id="quick-start">
+          <p class="eyebrow">Быстрый старт</p>
+          <h2>От поиска до выбора за четыре шага</h2>
+          <div class="steps">
+            <div class="step">
+              <span class="step-number">1</span>
+              <strong>Задайте поездку</strong>
+              <p>Выберите транспорт или отели, направление, даты и путешественников.</p>
+            </div>
+            <div class="step">
+              <span class="step-number">2</span>
+              <strong>Соберите shortlist</strong>
+              <p>Нажмите «Сравнить» на карточках, которые подходят по базовым условиям.</p>
+            </div>
+            <div class="step">
+              <span class="step-number">3</span>
+              <strong>Укажите приоритет</strong>
+              <p>Алгоритм моментально пересчитает выбор без повторного поиска.</p>
+            </div>
+            <div class="step">
+              <span class="step-number">4</span>
+              <strong>Проверьте и перейдите</strong>
+              <p>Изучите преимущества и компромисс, затем откройте предложение на Туту.</p>
+            </div>
+          </div>
+          <div class="callout callout-success">
+            <strong>Практический совет:</strong> обычно достаточно сравнить 3–5 подходящих
+            предложений. Это сохраняет фокус, но не ограничивает выбор.
+          </div>
+        </section>
+
+        <section id="transport">
+          <p class="eyebrow">Билеты и транспорт</p>
+          <h2>Сравнение разных способов добраться</h2>
+          <ol>
+            <li>Укажите пункты отправления и назначения, дату и пассажиров.</li>
+            <li>Выберите самолёты, поезда, автобусы, электрички или все варианты.</li>
+            <li>Добавьте интересные карточки кнопкой «Сравнить».</li>
+            <li>Откройте «Сравнение» в верхнем меню и выберите цель.</li>
+          </ol>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Приоритет</th>
+                  <th>Когда использовать</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Баланс</strong></td>
+                  <td>Нужен вариант без выраженного проигрыша по цене, времени и спокойствию.</td>
+                </tr>
+                <tr>
+                  <td><strong>Дешевле</strong></td>
+                  <td>Бюджет важнее продолжительности и дополнительных неудобств.</td>
+                </tr>
+                <tr>
+                  <td><strong>Быстрее</strong></td>
+                  <td>Главное — минимальное время в пути.</td>
+                </tr>
+                <tr>
+                  <td><strong>Спокойнее</strong></td>
+                  <td>Важны отсутствие пересадок, сложных билетов и ночных часов.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Карточка показывает только доступные для предложения факты: цену, расписание,
+            длительность, пересадки, багаж, условия тарифа и рейтинг. Повторное нажатие «Сравнить»
+            удаляет карточку из shortlist.
+          </p>
+        </section>
+
+        <section id="hotels">
+          <p class="eyebrow">Отели и жильё</p>
+          <h2>Фильтры сначала, глубокое сравнение потом</h2>
+          <p>
+            Укажите город, даты и гостей. Фильтры применяются сразу, без кнопки подтверждения: тип
+            размещения, цена, звёзды, оценка, расположение, питание, отмена, оплата при заселении и
+            удобства.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Приоритет</th>
+                  <th>Что получает больший вес</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Баланс</strong></td>
+                  <td>Цена, качество, расположение и условия без критического провала.</td>
+                </tr>
+                <tr>
+                  <td><strong>Дешевле</strong></td>
+                  <td>Итоговая стоимость и цена за ночь.</td>
+                </tr>
+                <tr>
+                  <td><strong>Комфорт</strong></td>
+                  <td>Оценка, надёжность отзывов, категория и удобства.</td>
+                </tr>
+                <tr>
+                  <td><strong>Ближе к центру</strong></td>
+                  <td>Расстояние до центра и ближайшего метро.</td>
+                </tr>
+                <tr>
+                  <td><strong>Гибкие условия</strong></td>
+                  <td>Бесплатная отмена и оплата при заселении.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout">
+            Можно добавить любое количество отелей. На широком экране видны четыре варианта; стрелки
+            сдвигают таблицу по одному отелю. На телефоне используйте горизонтальный жест.
+          </div>
+        </section>
+
+        <section id="recommendation">
+          <p class="eyebrow">Объяснимый выбор</p>
+          <h2>Как читать рекомендацию</h2>
+          <div class="feature-grid">
+            <div class="feature">
+              <strong>Рекомендованный вариант</strong>
+              <p>Лидер именно при текущем приоритете и выбранном наборе.</p>
+            </div>
+            <div class="feature">
+              <strong>Индекс</strong>
+              <p>Относительная оценка внутри сравнения, а не универсальный рейтинг.</p>
+            </div>
+            <div class="feature">
+              <strong>Преимущества</strong>
+              <p>Измеримые факты, которые дали варианту преимущество.</p>
+            </div>
+            <div class="feature">
+              <strong>Главный компромисс</strong>
+              <p>Самая важная уступка лучшей альтернативе, если она существует.</p>
+            </div>
+          </div>
+          <h3>Таблица различий</h3>
+          <p>
+            Зелёная подсветка отмечает лучшее доступное значение строки. Режим «Только различия»
+            скрывает одинаковые характеристики. Знак «—» означает, что источник не вернул параметр:
+            сервис не выдумывает его и снижает уверенность результата.
+          </p>
+          <div class="callout callout-success">
+            Одинаковый набор фактов и одинаковый приоритет всегда дают одинаковую рекомендацию.
+            Результат меняется только вместе с вариантами, приоритетом или обновлёнными данными
+            поиска.
+          </div>
+        </section>
+
+        <section id="checkout">
+          <p class="eyebrow">Завершение выбора</p>
+          <h2>Финальная проверка выполняется на Туту</h2>
+          <p>
+            Кнопка выбора создаёт ссылку на исходное предложение. Перед оплатой ещё раз проверьте
+            актуальную цену, наличие, путешественников, правила возврата или отмены, багаж, питание
+            и остальные условия тарифа.
+          </p>
+          <p>
+            «Туту Сравнение» не принимает оплату, не хранит платёжные данные и не дублирует выбор
+            места, тарифа или номера.
+          </p>
+        </section>
+
+        <section id="mobile">
+          <div class="mobile-demo">
+            <div>
+              <p class="eyebrow">На телефоне</p>
+              <h2>Полный сценарий без урезанных функций</h2>
+              <ul>
+                <li>форма поиска перестраивается под узкий экран;</li>
+                <li>фильтры отелей открываются компактной панелью;</li>
+                <li>варианты сравнения листаются жестом или стрелками;</li>
+                <li>ключевые действия остаются доступны без переполнения страницы.</li>
+              </ul>
+            </div>
+            <img src="assets/product-mobile.jpg" alt="Мобильный интерфейс сервиса" />
+          </div>
+        </section>
+
+        <section id="faq">
+          <p class="eyebrow">Помощь</p>
+          <h2>Частые вопросы</h2>
+          <details>
+            <summary>Почему часть источников временно недоступна?</summary>
+            <p>
+              Независимый источник транспорта может временно не ответить. Остальные реальные
+              варианты продолжают отображаться; тестовыми карточками источник не заменяется.
+            </p>
+          </details>
+          <details>
+            <summary>Почему первый поиск иногда дольше?</summary>
+            <p>
+              Первый запрос может включать DNS и установление защищённого соединения. Сервер заранее
+              прогревает канал, а успешные ответы кратковременно кэшируются, поэтому последующие
+              запросы обычно быстрее.
+            </p>
+          </details>
+          <details>
+            <summary>Почему цена после перехода изменилась?</summary>
+            <p>
+              Цены и наличие динамичны. Финальный экран Туту является источником истины
+              непосредственно перед покупкой.
+            </p>
+          </details>
+          <details>
+            <summary>Что делать, если переход не открылся?</summary>
+            <p>
+              Разрешите открытие новой вкладки для сайта и повторите действие. Если предложение
+              закончилось, выполните новый поиск.
+            </p>
+          </details>
+          <details>
+            <summary>Используется ли генеративная модель для выбора?</summary>
+            <p>
+              Нет. Входные данные структурированы, поэтому рекомендация рассчитывается быстрыми
+              проверяемыми правилами. Они не придумывают отсутствующие условия и дают
+              воспроизводимый результат.
+            </p>
+          </details>
+        </section>
+      </main>
+    </div>
+
+    <footer>
+      <div class="footer-inner">
+        <strong>Туту Сравнение</strong> · Пользовательская документация<br />
+        <a href="/">Открыть сервис</a> ·
+        <a href="https://github.com/R2NN/compering/blob/main/docs/USER_GUIDE.md"
+          >Версия на GitHub</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>

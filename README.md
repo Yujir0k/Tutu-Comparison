@@ -6,6 +6,14 @@
 </p>
 
 <p align="center">
+  <a href="docs/USER_GUIDE.md"><strong>Руководство пользователя</strong></a>
+  ·
+  <a href="docs/ARCHITECTURE.md">Архитектура</a>
+  ·
+  <a href="SCORING_RULES.md">Правила сравнения</a>
+</p>
+
+<p align="center">
   <a href="https://github.com/R2NN/compering/actions/workflows/ci.yml"><img alt="Quality gate" src="https://github.com/R2NN/compering/actions/workflows/ci.yml/badge.svg" /></a>
   <img alt="Node 22+" src="https://img.shields.io/badge/Node.js-22%2B-339933?logo=nodedotjs&logoColor=white" />
   <img alt="TypeScript strict" src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" />
@@ -407,6 +415,7 @@ Production не исполняет TypeScript напрямую:
 
 ## Документация
 
+- [USER_GUIDE.md](docs/USER_GUIDE.md) — пользовательский сценарий, интерфейс и ответы на частые вопросы;
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — компоненты, границы и поток отказа;
 - [SCORING_RULES.md](SCORING_RULES.md) — формулы, веса, штрафы и примеры;
 - [SECURITY.md](docs/SECURITY.md) — модель угроз и защитные меры;
