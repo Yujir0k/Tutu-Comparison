@@ -1,0 +1,11 @@
+node_modules
+dist
+.tutu-cache
+.vite
+.env
+.env.*
+!.env.example
+*.log
+*.zip
+coverage
+.DS_Store
