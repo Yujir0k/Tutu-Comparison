@@ -1,3 +1,7 @@
+## ▶️ Демонстрация
+
+[Смотреть демо проекта (16 секунд)](tutu-demo.mp4)
+
 ## 🥉 Итог хакатона Tutu 2026
 
 Команда **R² negative** заняла **3-е место** на ИИ-хакатоне Tutu 2026 с проектом «Сравнение офферов». Сервис помогает сравнивать варианты поездок и отелей на реальных данных Tutu MCP.
@@ -6,7 +10,7 @@
 |---|---|---|
 | **R² negative** | **3-е место** | Сравнение предложений и осознанный выбор поездки |
 
-Это личная копия проекта участника команды Игоря Борисова. [Исходный командный репозиторий](https://github.com/R2NN/compering).
+Проект создан командой R² negative при участии Игоря Борисова.
 
 <p align="center"><img src="certificate-2.png" width="85%" alt="Диплом Игоря Борисова за третье место на ИИ-хакатоне Tutu 2026" /></p>
 
@@ -28,7 +32,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/R2NN/compering/actions/workflows/ci.yml"><img alt="Quality gate" src="https://github.com/R2NN/compering/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://github.com/Yujir0k/Tutu-Comparison/actions/workflows/ci.yml"><img alt="Quality gate" src="https://github.com/Yujir0k/Tutu-Comparison/actions/workflows/ci.yml/badge.svg" /></a>
   <img alt="Node 22+" src="https://img.shields.io/badge/Node.js-22%2B-339933?logo=nodedotjs&logoColor=white" />
   <img alt="TypeScript strict" src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" />
   <img alt="React 19" src="https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white" />
@@ -316,7 +320,7 @@ API не возвращает stack trace или внутренние сетев
 ### Установка и разработка
 
 ```bash
-git clone https://github.com/R2NN/compering.git
+git clone https://github.com/Yujir0k/Tutu-Comparison.git
 cd compering
 corepack enable
 pnpm install --frozen-lockfile
