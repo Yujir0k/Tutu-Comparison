@@ -443,4 +443,4 @@ Production не исполняет TypeScript напрямую:
 
 ## Диплом
 
-<p align="center"><img src="certificate-2.png" width="85%" alt="Диплом Игоря Борисова за третье место на ИИ-хакатоне Tutu 2026" /></p>
+<p align="center"><img src="docs/certificates/12_Tutu_3rd.png" width="85%" alt="Диплом Игоря Борисова за третье место на ИИ-хакатоне Tutu 2026" /></p>
